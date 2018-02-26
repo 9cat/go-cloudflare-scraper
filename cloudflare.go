@@ -31,6 +31,10 @@ func NewTransport(upstream http.RoundTripper) (*Transport, error) {
 	return &Transport{upstream, jar}, nil
 }
 
+func (t Transport) CookieJar() http.CookieJar {
+	return t.cookies
+}
+
 func (t Transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	if r.Header.Get("User-Agent") == "" {
 		r.Header.Set("User-Agent", userAgent)
@@ -42,7 +46,8 @@ func (t Transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	}
 
 	// Check if Cloudflare anti-bot is on
-	if resp.StatusCode == 503 && resp.Header.Get("Server") == "cloudflare-nginx" {
+	server := resp.Header.Get("Server")
+	if resp.StatusCode == 503 && (server == "cloudflare-nginx" || server == "cloudflare") {
 		log.Printf("Solving challenge for %s", resp.Request.URL.Hostname())
 		resp, err := t.solveChallenge(resp)
 
