@@ -135,6 +135,9 @@ var jsReplace2Regexp = regexp.MustCompile(`\s{3,}[a-z](?: = |\.).+`)
 var jsReplace3Regexp = regexp.MustCompile(`[\n\\']`)
 
 func (t Transport) extractJS(body,domain string) (string, error) {
+	
+	log.Printf("extractJS(body:%s, domain:%s)",body,domain)
+	
 	matches := jsRegexp.FindStringSubmatch(body)
 	if len(matches) == 0 {
 		return "", errors.New("No matching javascript found")
