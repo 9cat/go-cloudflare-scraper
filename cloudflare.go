@@ -83,7 +83,7 @@ func (t Transport) solveChallenge(resp *http.Response) (*http.Response, error) {
 	chkURL, _ := url.Parse("/cdn-cgi/l/chk_jschl")
 	u := resp.Request.URL.ResolveReference(chkURL)
 
-	js, err := t.extractJS(string(b))
+	js, err := t.extractJS(string(b),string(resp.Request.URL.Hostname()))
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ var jsReplace1Regexp = regexp.MustCompile(`a\.value = (parseInt\(.+?\)).+`)
 var jsReplace2Regexp = regexp.MustCompile(`\s{3,}[a-z](?: = |\.).+`)
 var jsReplace3Regexp = regexp.MustCompile(`[\n\\']`)
 
-func (t Transport) extractJS(body string) (string, error) {
+func (t Transport) extractJS(body,domain string) (string, error) {
 	matches := jsRegexp.FindStringSubmatch(body)
 	if len(matches) == 0 {
 		return "", errors.New("No matching javascript found")
@@ -142,7 +142,7 @@ func (t Transport) extractJS(body string) (string, error) {
 
 	js := matches[1]
 	js = jsReplace1Regexp.ReplaceAllString(js, "$1")
-	js = jsReplace1Regexp.ReplaceAllString("t.length", len(resp.Request.URL.Hostname()))
+	js = jsReplace1Regexp.ReplaceAllString("t.length", len(domain))
 	js = jsReplace2Regexp.ReplaceAllString(js, "")
 
 	// Strip characters that could be used to exit the string context
