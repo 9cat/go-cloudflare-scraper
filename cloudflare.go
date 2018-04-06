@@ -142,7 +142,7 @@ func (t Transport) extractJS(body,domain string) (string, error) {
 
 	js := matches[1]
 	js = jsReplace1Regexp.ReplaceAllString(js, "$1")
-	js = jsReplace1Regexp.ReplaceAllString("t.length", len(domain))
+	js = jsReplace1Regexp.ReplaceAllString("t.length", string(len(domain)))
 	js = jsReplace2Regexp.ReplaceAllString(js, "")
 
 	// Strip characters that could be used to exit the string context
